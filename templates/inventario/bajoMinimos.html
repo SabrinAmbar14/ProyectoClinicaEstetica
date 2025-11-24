@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Productos Bajo Stock Mínimo - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Productos Bajo Stock Mínimo</h2>
+        <div>
+            <a href="{% url 'inventario:lista_productos' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Inventario
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if productos %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Alerta:</strong> Se encontraron {{ productos.count }} productos con stock bajo el mínimo establecido.
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-warning">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Diferencia</th>
+                            <th>Proveedor</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ producto.nombre }}</div>
+                                {% if producto.descripcion %}
+                                    <small class="text-muted">{{ producto.descripcion|truncatewords:5 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ producto.get_categoria_display }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-danger">{{ producto.stock_actual }}</span>
+                            </td>
+                            <td>{{ producto.stock_minimo }}</td>
+                            <td>
+                                <span class="badge bg-danger">
+                                    {{ producto.diferencia_minima }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if producto.proveedor %}
+                                    <span class="badge bg-info">{{ producto.proveedor.nombre_empresa }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="{% url 'inventario:actualizar_stock' producto.pk %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-boxes"></i> Reponer
+                                    </a>
+                                    <a href="{% url 'inventario:modificar_producto' producto.pk %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Acción Requerida</h5>
+                                <p class="card-text mb-0">Es necesario reponer el stock de estos productos para evitar desabastecimiento.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title text-dark">Recomendaciones</h5>
+                                <ul class="mb-0">
+                                    <li>Contactar a los proveedores correspondientes</li>
+                                    <li>Actualizar el stock lo antes posible</li>
+                                    <li>Revisar niveles mínimos si es necesario</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                </div>
+                <h4 class="text-success">¡Excelente!</h4>
+                <p class="text-muted">No hay productos bajo stock mínimo en este momento.</p>
+                <p class="text-muted mb-4">El inventario se encuentra en niveles adecuados.</p>
+                <a href="{% url 'inventario:lista_productos' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

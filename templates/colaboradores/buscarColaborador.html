@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar Colaboradores - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Colaboradores</h2>
+    </div>
+    <div class="card-body">
+        <form method="get" class="mb-4">
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-semibold">Tipo de Búsqueda</label>
+                    <div class="mt-2">
+                        {% for choice in form.tipo_busqueda %}
+                        <div class="form-check">
+                            {{ choice.tag }}
+                            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                {{ choice.choice_label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.termino_busqueda.id_for_label }}" class="form-label fw-semibold">Término de Búsqueda</label>
+                    {{ form.termino_busqueda }}
+                </div>
+                
+                <div class="col-md-2 mb-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        {% if colaboradores %}
+            <div class="mt-4">
+                <h4 class="mb-3">Resultados de la Búsqueda ({{ colaboradores.count }})</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>RUT</th>
+                                <th>Nombre</th>
+                                <th>Cargo</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for colaborador in colaboradores %}
+                            <tr>
+                                <td class="fw-semibold">{{ colaborador.rut }}</td>
+                                <td>{{ colaborador.nombre }} {{ colaborador.apellido }}</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">{{ colaborador.get_cargo_display }}</span>
+                                </td>
+                                <td>{{ colaborador.email }}</td>
+                                <td>{{ colaborador.telefono }}</td>
+                                <td>
+                                    {% if colaborador.estado == 'activo' %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{% url 'colaboradores:modificar_colaborador' colaborador.pk %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% elif request.GET and not colaboradores %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-search fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No se encontraron resultados</h4>
+                <p class="text-muted">No hay colaboradores que coincidan con los criterios de búsqueda.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+    
+    .badge.bg-info {
+        background-color: #17a2b8 !important;
+    }
+</style>
+{% endblock %}

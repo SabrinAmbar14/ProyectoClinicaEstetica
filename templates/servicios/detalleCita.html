@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Cita - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Detalle de Cita</h2>
+                <div>
+                    <a href="{% url 'servicios:agregar_producto_consumido' cita.pk %}" class="btn btn-success btn-sm me-2">
+                        <i class="fas fa-plus"></i> Agregar Producto
+                    </a>
+                    <a href="{% url 'servicios:lista_citas' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="40%">Cliente:</th>
+                                <td class="fw-semibold">{{ cita.cliente.nombre_completo }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Servicio:</th>
+                                <td>
+                                    <span class="badge bg-secondary">{{ cita.servicio.get_categoria_display }}</span>
+                                    {{ cita.servicio.nombre }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Estilista:</th>
+                                <td>{{ cita.estilista.nombre_completo }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Fecha y Hora:</th>
+                                <td>{{ cita.fecha_cita|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="40%">Estado:</th>
+                                <td>
+                                    {% if cita.estado == 'completada' %}
+                                        <span class="badge bg-success">Completada</span>
+                                    {% elif cita.estado == 'programada' %}
+                                        <span class="badge bg-warning">Programada</span>
+                                    {% elif cita.estado == 'en_proceso' %}
+                                        <span class="badge bg-info">En Proceso</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Precio Base:</th>
+                                <td>${{ cita.servicio.precio_base|floatformat:0 }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Descuento:</th>
+                                <td class="text-danger">-${{ cita.descuento_aplicado|floatformat:0 }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Precio Final:</th>
+                                <td class="fw-bold text-success">${{ cita.precio_final|floatformat:0 }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if cita.observaciones %}
+                <div class="mt-4">
+                    <h5 class="text-muted border-bottom pb-2">Observaciones</h5>
+                    <p class="mb-0">{{ cita.observaciones }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cita.es_cumpleanos_cliente %}
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-birthday-cake me-2"></i>
+                    <strong>¡Cumpleaños del Cliente!</strong> Se aplicó un descuento del 20%.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Productos consumidos -->
+        {% if productos_consumidos %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Productos Consumidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% with total_productos=0 %}
+                            {% for producto in productos_consumidos %}
+                                <tr>
+                                    <td class="fw-semibold">{{ producto.producto.nombre }}</td>
+                                    <td>{{ producto.cantidad }}</td>
+                                    <td>${{ producto.precio_unitario|floatformat:0 }}</td>
+                                    <td class="fw-semibold">${{ producto.subtotal|floatformat:0 }}</td>
+                                </tr>
+                                {% with total_productos=total_productos|add:producto.subtotal %}
+                                {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end fw-bold">Total Productos:</td>
+                                <td class="fw-bold">${{ total_productos|floatformat:0 }}</td>
+                            </tr>
+                        </tfoot>
+                        {% endwith %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Resumen</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-calendar-check fa-3x text-primary"></i>
+                </div>
+                <h4>{{ cita.servicio.nombre }}</h4>
+                <p class="text-muted">{{ cita.cliente.nombre_completo }}</p>
+                
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Duración:</span>
+                        <span>{{ cita.servicio.duracion_minutos }} min</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Estado:</span>
+                        {% if cita.estado == 'completada' %}
+                            <span class="badge bg-success">Completada</span>
+                        {% elif cita.estado == 'programada' %}
+                            <span class="badge bg-warning">Programada</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ cita.estado }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total:</span>
+                        <span class="fw-bold text-success">${{ cita.precio_final|floatformat:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Acciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'servicios:agregar_producto_consumido' cita.pk %}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Agregar Producto
+                    </a>
+                    <a href="{% url 'servicios:lista_citas' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a Citas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Rol Eliminado{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Rol Eliminado</h3>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">El rol "gerente" fue eliminado del sistema. Esta vista ya no está disponible.</p>
+        <a href="{% url 'core:dashboard' %}" class="btn btn-primary">Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

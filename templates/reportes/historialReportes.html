@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Reportes - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Reportes Generados</h2>
+        <div>
+            {% if is_admin or user_rol == 'recepcionista' %}
+            <a href="{% url 'reportes:reportes_principal' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Reporte
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if reportes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Reporte</th>
+                            <th>Tipo</th>
+                            <th>Fecha Generación</th>
+                            <th>Usuario</th>
+                            <th>Parámetros</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reporte in reportes %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ reporte.nombre }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ reporte.get_tipo_reporte_display }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ reporte.fecha_generacion|date:"d/m/Y" }}</div>
+                                <small class="text-muted">{{ reporte.fecha_generacion|date:"H:i" }}</small>
+                            </td>
+                            <td>{{ reporte.usuario.username }}</td>
+                            <td>
+                                <small class="text-muted">
+                                    {% for key, value in reporte.parametros.items %}
+                                        {{ key }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    {% if is_admin or user_rol == 'recepcionista' %}
+                                    <button class="btn btn-info btn-sm" 
+                                            onclick="alert('Función de regenerar reporte en desarrollo')">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                    <button class="btn btn-success btn-sm"
+                                            onclick="alert('Función de exportar en desarrollo')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Estadísticas del historial -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">{{ reportes.count }}</h4>
+                            <p class="card-text">Total Reportes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">{{ reportes.filter|length }}</h4>
+                            <p class="card-text">Este Mes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">{{ reportes.filter|length }}</h4>
+                            <p class="card-text">Inventario</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">{{ reportes.filter|length }}</h4>
+                            <p class="card-text">Ventas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-history fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No hay historial de reportes</h4>
+                <p class="text-muted mb-4">Aún no se han generado reportes en el sistema.</p>
+                <a href="{% url 'reportes:reportes_principal' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-chart-bar me-2"></i>Generar Primer Reporte
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Información del sistema -->
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información del Sistema de Reportes</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Tipos de Reportes Disponibles:</h6>
+                <ul class="mb-0">
+                    <li>📊 Reportes de Inventario</li>
+                    <li>👥 Reportes de Clientes</li>
+                    <li>📈 Productos Más Vendidos</li>
+                    <li>⚠️ Stock Bajo Mínimo</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Características:</h6>
+                <ul class="mb-0">
+                    <li>✅ Filtros avanzados</li>
+                    <li>✅ Exportación de datos</li>
+                    <li>✅ Historial automático</li>
+                    <li>✅ Formatos imprimibles</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Colaboradores - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-users me-2"></i>Lista de Colaboradores</h2>
+        <div>
+            {% if is_admin %}
+            <a href="{% url 'colaboradores:agregar_colaborador' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Agregar Colaborador
+            </a>
+            {% endif %}
+            {% if is_admin %}
+            <a href="{% url 'usuarios:register' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-user-plus"></i> Registrar Usuario
+            </a>
+            {% endif %}
+            <a href="{% url 'colaboradores:buscar_colaborador' %}" class="btn btn-success">
+                <i class="fas fa-search"></i> Buscar
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if colaboradores %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>RUT</th>
+                            <th>Nombre</th>
+                            <th>Cargo</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Sueldo</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for colaborador in colaboradores %}
+                        <tr>
+                            <td class="fw-semibold">{{ colaborador.rut }}</td>
+                            <td>{{ colaborador.nombre }} {{ colaborador.apellido }}</td>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ colaborador.get_cargo_display }}</span>
+                            </td>
+                            <td>{{ colaborador.email }}</td>
+                            <td>{{ colaborador.telefono }}</td>
+                            <td>${{ colaborador.sueldo|floatformat:0 }}</td>
+                            <td>
+                                {% if colaborador.estado == 'activo' %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                        {% if is_admin %}
+                                        <a href="{% url 'colaboradores:modificar_colaborador' colaborador.pk %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        {% if colaborador.estado == 'activo' %}
+                                            <form method="post" action="{% url 'colaboradores:dar_baja_colaborador' colaborador.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm" 
+                                                        onclick="return confirm('¿Está seguro de dar de baja este colaborador?')">
+                                                    <i class="fas fa-user-slash"></i> Baja
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        <form method="post" action="{% url 'colaboradores:eliminar_colaborador' colaborador.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="return confirm('¿Eliminar definitivamente este colaborador? Esta acción no se puede deshacer.')">
+                                                <i class="fas fa-trash-alt"></i> Eliminar
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 text-muted">
+                <strong>Total de colaboradores:</strong> {{ colaboradores.count }}
+            </div>
+        {% else %}
+                <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-users fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No hay colaboradores registrados</h4>
+                <p class="text-muted mb-4">Comience agregando el primer colaborador al sistema.</p>
+                {% if is_admin %}
+                <a href="{% url 'colaboradores:agregar_colaborador' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus"></i> Agregar Primer Colaborador
+                </a>
+                {% endif %}
+                {% if is_admin %}
+                <a href="{% url 'usuarios:register' %}" class="btn btn-outline-primary btn-lg ms-2">
+                    <i class="fas fa-user-plus"></i> Registrar Usuario
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estadísticas rápidas -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ colaboradores.count }}</h4>
+                <p class="card-text">Total Colaboradores</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ colaboradores.filter|length }}</h4>
+                <p class="card-text">Activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ colaboradores.filter|length }}</h4>
+                <p class="card-text">Estilistas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ colaboradores.filter|length }}</h4>
+                <p class="card-text">Recepcionistas</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

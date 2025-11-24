@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Cliente (Estilista){% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Registrar Cliente</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-success">Registrar</button>
+                        <a href="{% if next %}{{ next }}{% else %}{% url 'usuarios:dashboard_estilista' %}{% endif %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

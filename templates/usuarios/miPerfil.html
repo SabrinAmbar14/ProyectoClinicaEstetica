@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="fas fa-user-circle me-2"></i>Mi Perfil</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form_usuario.username.id_for_label }}" class="form-label fw-semibold">Usuario</label>
+                            {{ form_usuario.username }}
+                            {% if form_usuario.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_usuario.username.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form_usuario.email.id_for_label }}" class="form-label fw-semibold">Email</label>
+                            {{ form_usuario.email }}
+                            {% if form_usuario.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_usuario.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form_usuario.first_name.id_for_label }}" class="form-label fw-semibold">Nombre</label>
+                            {{ form_usuario.first_name }}
+                            {% if form_usuario.first_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_usuario.first_name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form_usuario.last_name.id_for_label }}" class="form-label fw-semibold">Apellido</label>
+                            {{ form_usuario.last_name }}
+                            {% if form_usuario.last_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_usuario.last_name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form_perfil.telefono.id_for_label }}" class="form-label fw-semibold">Teléfono</label>
+                            {{ form_perfil.telefono }}
+                            {% if form_perfil.telefono.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_perfil.telefono.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form_perfil.fecha_nacimiento.id_for_label }}" class="form-label fw-semibold">Fecha de Nacimiento</label>
+                            {{ form_perfil.fecha_nacimiento }}
+                            {% if form_perfil.fecha_nacimiento.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_perfil.fecha_nacimiento.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form_perfil.direccion.id_for_label }}" class="form-label fw-semibold">Dirección</label>
+                        {{ form_perfil.direccion }}
+                        {% if form_perfil.direccion.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form_perfil.direccion.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Actualizar Perfil
+                        </button>
+                        <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-warning">
+                            <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                        </a>
+                        <a href="{% url 'index' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Información del perfil -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="40%">Rol:</th>
+                                <td>
+                                    <span class="badge bg-info">{{ perfil.get_rol_display }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Fecha de Registro:</th>
+                                <td>{{ perfil.fecha_creacion|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Última Actualización:</th>
+                                <td>{{ perfil.fecha_actualizacion|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="40%">Estado:</th>
+                                <td>
+                                    {% if perfil.activo %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Fecha Contratación:</th>
+                                <td>{{ perfil.fecha_contratacion|default:"No especificada" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-label {
+        color: #2c3e50;
+    }
+</style>
+{% endblock %}

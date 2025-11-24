@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Modificar{% else %}Agregar{% endif %} Producto - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    {% if form.instance.pk %}
+                        <i class="fas fa-edit me-2"></i>Modificar Producto: {{ producto.nombre }}
+                    {% else %}
+                        <i class="fas fa-box me-2"></i>Agregar Nuevo Producto
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label fw-semibold">Nombre del Producto *</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.nombre.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.categoria.id_for_label }}" class="form-label fw-semibold">Categoría *</label>
+                            {{ form.categoria }}
+                            {% if form.categoria.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.categoria.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-semibold">Descripción</label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.descripcion.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.precio_costo.id_for_label }}" class="form-label fw-semibold">Precio de Costo *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.precio_costo }}
+                            </div>
+                            {% if form.precio_costo.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.precio_costo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.precio_venta.id_for_label }}" class="form-label fw-semibold">Precio de Venta *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.precio_venta }}
+                            </div>
+                            {% if form.precio_venta.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.precio_venta.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.proveedor.id_for_label }}" class="form-label fw-semibold">Proveedor</label>
+                            {{ form.proveedor }}
+                            {% if form.proveedor.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.proveedor.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.stock_actual.id_for_label }}" class="form-label fw-semibold">Stock Actual *</label>
+                            {{ form.stock_actual }}
+                            {% if form.stock_actual.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.stock_actual.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.stock_minimo.id_for_label }}" class="form-label fw-semibold">Stock Mínimo *</label>
+                            {{ form.stock_minimo }}
+                            {% if form.stock_minimo.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.stock_minimo.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Se generarán alertas cuando el stock esté en o bajo este nivel</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if form.instance.pk %}Actualizar{% else %}Guardar{% endif %} Producto
+                        </button>
+                        <a href="{% url 'inventario:lista_productos' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-label {
+        color: #2c3e50;
+    }
+    
+    .input-group-text {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+</style>
+{% endblock %}

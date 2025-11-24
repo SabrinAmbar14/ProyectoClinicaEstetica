@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Modificar{% else %}Agregar{% endif %} Colaborador - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    {% if form.instance.pk %}
+                        <i class="fas fa-edit me-2"></i>Modificar Colaborador: {{ colaborador.nombre_completo }}
+                    {% else %}
+                        <i class="fas fa-user-plus me-2"></i>Agregar Nuevo Colaborador
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.rut.id_for_label }}" class="form-label fw-semibold">RUT *</label>
+                            {{ form.rut }}
+                            {% if form.rut.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.rut.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Formato: 12345678-9</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label fw-semibold">Nombre *</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.nombre.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.apellido.id_for_label }}" class="form-label fw-semibold">Apellido *</label>
+                            {{ form.apellido }}
+                            {% if form.apellido.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.apellido.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label fw-semibold">Teléfono *</label>
+                            {{ form.telefono }}
+                            {% if form.telefono.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.telefono.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.cargo.id_for_label }}" class="form-label fw-semibold">Cargo *</label>
+                            {{ form.cargo }}
+                            {% if form.cargo.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.cargo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.fecha_contratacion.id_for_label }}" class="form-label fw-semibold">Fecha de Contratación *</label>
+                            {{ form.fecha_contratacion }}
+                            {% if form.fecha_contratacion.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.fecha_contratacion.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.sueldo.id_for_label }}" class="form-label fw-semibold">Sueldo *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.sueldo }}
+                            </div>
+                            {% if form.sueldo.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.sueldo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.direccion.id_for_label }}" class="form-label fw-semibold">Dirección</label>
+                        {{ form.direccion }}
+                        {% if form.direccion.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.direccion.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if form.instance.pk %}Actualizar{% else %}Guardar{% endif %} Colaborador
+                        </button>
+                        <a href="{% url 'usuarios:register' %}" class="btn btn-outline-primary" title="Registrar usuario asociado">
+                            <i class="fas fa-user-plus me-2"></i>Registrar Usuario
+                        </a>
+                        <a href="{% url 'colaboradores:lista_colaboradores' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-label {
+        color: #2c3e50;
+    }
+    
+    .input-group-text {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+</style>
+{% endblock %}

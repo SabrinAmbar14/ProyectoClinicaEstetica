@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendar Cita - Estilista{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Agendar Cita</h3>
+    </div>
+    <div class="card-body">
+        <p class="small text-muted">Si el cliente no existe, puede <a href="{% url 'clientes:estilista_registrar_cliente' %}?next={{ request.get_full_path }}">registrarlo aquí</a> y volver automáticamente con la selección.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary">Agendar Cita</button>
+                <a href="{% url 'usuarios:dashboard_estilista' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

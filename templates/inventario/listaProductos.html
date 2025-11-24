@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Inventario - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-boxes me-2"></i>Inventario de Productos</h2>
+        <div>
+            {% if is_admin %}
+            <a href="{% url 'inventario:agregar_producto' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Agregar Producto
+            </a>
+            {% endif %}
+            <a href="{% url 'inventario:bajo_minimos' %}" class="btn btn-warning me-2">
+                <i class="fas fa-exclamation-triangle"></i> Bajo Mínimo
+            </a>
+            <a href="{% url 'inventario:buscar_producto' %}" class="btn btn-success">
+                <i class="fas fa-search"></i> Buscar
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if productos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Precio Costo</th>
+                            <th>Precio Venta</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Proveedor</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr class="{% if producto.esta_bajo_minimo %}table-warning{% endif %}">
+                            <td>
+                                <div class="fw-semibold">{{ producto.nombre }}</div>
+                                {% if producto.descripcion %}
+                                    <small class="text-muted">{{ producto.descripcion|truncatewords:5 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ producto.get_categoria_display }}</span>
+                            </td>
+                            <td>${{ producto.precio_costo|floatformat:0 }}</td>
+                            <td>
+                                <strong>${{ producto.precio_venta|floatformat:0 }}</strong>
+                            </td>
+                            <td>
+                                <span class="fw-semibold {% if producto.esta_bajo_minimo %}text-danger{% endif %}">
+                                    {{ producto.stock_actual }}
+                                </span>
+                                {% if producto.esta_bajo_minimo %}
+                                    <i class="fas fa-exclamation-triangle text-danger ms-1"></i>
+                                {% endif %}
+                            </td>
+                            <td>{{ producto.stock_minimo }}</td>
+                            <td>
+                                {% if producto.proveedor %}
+                                    <span class="badge bg-info">{{ producto.proveedor.nombre_empresa }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if producto.estado == 'activo' %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    {% if is_admin %}
+                                    <a href="{% url 'inventario:modificar_producto' producto.pk %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'inventario:actualizar_stock' producto.pk %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-boxes"></i>
+                                    </a>
+                                    {% if producto.estado == 'activo' %}
+                                        <form method="post" action="{% url 'inventario:dar_baja_producto' producto.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm" 
+                                                    onclick="return confirm('¿Está seguro de dar de baja este producto?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    <form method="post" action="{% url 'inventario:eliminar_producto' producto.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                onclick="return confirm('¿Eliminar definitivamente este producto? Esta acción no se puede deshacer.')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 text-muted">
+                <strong>Total de productos:</strong> {{ productos.count }} | 
+                <strong>Productos bajo mínimo:</strong> <span class="text-danger">{{ productos_bajo_minimo_count }}</span>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-boxes fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No hay productos en el inventario</h4>
+                <p class="text-muted mb-4">Comience agregando el primer producto al sistema.</p>
+                {% if is_admin %}
+                <a href="{% url 'inventario:agregar_producto' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus"></i> Agregar Primer Producto
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estadísticas del inventario -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ productos.count }}</h4>
+                <p class="card-text">Total Productos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ productos.filter|length }}</h4>
+                <p class="card-text">Productos Activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ productos_bajo_minimo_count }}</h4>
+                <p class="card-text">Bajo Stock Mínimo</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ productos.filter|length }}</h4>
+                <p class="card-text">Categorías</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

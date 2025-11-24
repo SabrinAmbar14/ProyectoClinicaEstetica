@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Avisos de Cumpleaños - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-birthday-cake me-2 text-warning"></i>Avisos de Cumpleaños</h2>
+        <div>
+            <span class="badge bg-warning text-dark fs-6">Hoy: {{ hoy|date:"d/m/Y" }}</span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if clientes_cumpleanos %}
+            <div class="alert alert-warning">
+                <i class="fas fa-birthday-cake me-2"></i>
+                <strong>¡Feliz Cumpleaños!</strong> Hoy es el cumpleaños de {{ clientes_cumpleanos.count }} cliente(s).
+            </div>
+
+            <div class="row">
+                {% for cliente in clientes_cumpleanos %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-birthday-cake me-2"></i>{{ cliente.nombre_completo }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-user-circle fa-3x text-warning"></i>
+                            </div>
+                            
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th class="text-muted" width="40%">RUT:</th>
+                                    <td class="fw-semibold">{{ cliente.rut }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Email:</th>
+                                    <td>{{ cliente.email|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Teléfono:</th>
+                                    <td>{{ cliente.telefono|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Edad:</th>
+                                    <td>
+                                        {% with edad=hoy.year|add:"-cliente.fecha_nacimiento.year" %}
+                                            {{ edad }} años
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <div class="alert alert-success mt-2">
+                                <i class="fas fa-tag me-2"></i>
+                                <strong>Descuento aplicable:</strong> 20% en todos los servicios
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'servicios:calcular_servicio' %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-calculator me-2"></i>Calcular Servicio
+                                </a>
+                                <a href="{% url 'clientes:modificar_cliente' cliente.pk %}" class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-edit me-2"></i>Ver Cliente
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Resumen -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">{{ clientes_cumpleanos.count }}</h4>
+                            <p class="card-text">Clientes de Cumpleaños Hoy</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">20%</h4>
+                            <p class="card-text">Descuento Aplicable</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-calendar-check fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No hay cumpleaños hoy</h4>
+                <p class="text-muted mb-4">No hay clientes que celebren su cumpleaños el día de hoy.</p>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Recordatorio:</strong> El sistema aplica automáticamente un 20% de descuento 
+                    en los servicios cuando coincide con el cumpleaños del cliente.
+                </div>
+                
+                <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-primary">
+                    <i class="fas fa-users me-2"></i>Ver Todos los Clientes
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Próximos cumpleaños -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Próximos Cumpleaños</h5>
+    </div>
+    <div class="card-body">
+        <div class="text-center">
+            <p class="text-muted">Función en desarrollo - Próximamente podrás ver los cumpleaños de los próximos días.</p>
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb me-2"></i>
+                <strong>Sugerencia:</strong> Revisa regularmente esta sección para preparar promociones especiales.
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-border-warning {
+        border: 2px solid #ffc107;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+</style>
+{% endblock %}

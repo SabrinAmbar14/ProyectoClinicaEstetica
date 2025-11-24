@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión Clientes (Recepcionista){% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Gestión de Clientes</h3>
+    </div>
+    <div class="card-body">
+        <a href="{% url 'clientes:agregar_cliente' %}" class="btn btn-success mb-3">Nuevo Cliente</a>
+        {% if clientes %}
+            <table class="table">
+                <thead><tr><th>Nombre</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    {% for c in clientes %}
+                        <tr>
+                            <td>{{ c.nombre_completo }}</td>
+                            <td>{{ c.telefono }}</td>
+                            <td>{{ c.estado }}</td>
+                            <td>
+                                <a href="{% url 'clientes:modificar_cliente' c.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                                <a href="{% url 'clientes:modificar_cliente' c.pk %}" class="btn btn-sm btn-info">Ver / Editar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay clientes registrados.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

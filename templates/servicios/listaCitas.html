@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Citas - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Historial de Citas</h2>
+        <div>
+            {% if is_admin or user_rol == 'recepcionista' or user_rol == 'estilista' %}
+            <a href="{% url 'servicios:registrar_servicio' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Nueva Cita
+            </a>
+            {% endif %}
+            
+            <!-- Filtro por fecha -->
+            <form method="get" class="d-inline">
+                <div class="input-group">
+                    <input type="date" name="fecha" class="form-control" value="{{ fecha_filtro|date:'Y-m-d' }}" 
+                           placeholder="Filtrar por fecha">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    {% if fecha_filtro %}
+                    <a href="{% url 'servicios:lista_citas' %}" class="btn btn-outline-danger">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if citas %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Estilista</th>
+                            <th>Precio Final</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ cita.fecha_cita|date:"d/m/Y" }}</div>
+                                <small class="text-muted">{{ cita.fecha_cita|date:"H:i" }}</small>
+                            </td>
+                            <td>{{ cita.cliente.nombre_completo }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ cita.servicio.get_categoria_display }}</span>
+                                <div class="small">{{ cita.servicio.nombre }}</div>
+                            </td>
+                            <td>{{ cita.estilista.nombre_completo }}</td>
+                            <td>
+                                <strong class="text-success">${{ cita.precio_final|floatformat:0 }}</strong>
+                                {% if cita.descuento_aplicado > 0 %}
+                                    <br><small class="text-danger">-{{ cita.descuento_aplicado|floatformat:0 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.estado == 'completada' %}
+                                    <span class="badge bg-success">Completada</span>
+                                {% elif cita.estado == 'programada' %}
+                                    <span class="badge bg-warning">Programada</span>
+                                {% elif cita.estado == 'en_proceso' %}
+                                    <span class="badge bg-info">En Proceso</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="{% url 'servicios:detalle_cita' cita.pk %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if is_admin or user_rol == 'estilista' %}
+                                    <a href="{% url 'servicios:agregar_producto_consumido' cita.pk %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-box"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 text-muted">
+                <strong>Total de citas:</strong> {{ citas.count }}
+                {% if fecha_filtro %}
+                    <span class="ms-2">| Filtrado por: {{ fecha_filtro|date:"d/m/Y" }}</span>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-calendar-times fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No hay citas registradas</h4>
+                <p class="text-muted mb-4">Comience registrando la primera cita en el sistema.</p>
+                {% if is_admin or user_rol == 'recepcionista' or user_rol == 'estilista' %}
+                <a href="{% url 'servicios:registrar_servicio' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus"></i> Registrar Primera Cita
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Resumen de citas -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ citas.count }}</h4>
+                <p class="card-text">Total Citas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ citas.filter|length }}</h4>
+                <p class="card-text">Completadas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ citas.filter|length }}</h4>
+                <p class="card-text">Programadas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">$0</h4>
+                <p class="card-text">Ingresos Hoy</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

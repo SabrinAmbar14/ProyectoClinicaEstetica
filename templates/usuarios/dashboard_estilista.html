@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Estilista{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Dashboard Estilista</h3>
+    </div>
+    <div class="card-body">
+        <h5>Servicios del día</h5>
+        {% if citas_hoy %}
+            <ul class="list-group">
+                {% for cita in citas_hoy %}
+                    <li class="list-group-item">
+                        <strong>{{ cita.fecha_cita }}</strong> - {{ cita.cliente.nombre_completo }} - {{ cita.servicio.nombre }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No tienes servicios programados para hoy.</p>
+        {% endif %}
+        <hr>
+        <a href="{% url 'usuarios:estilista_buscar_clientes' %}" class="btn btn-outline-primary">Buscar Clientes</a>
+        <a href="{% url 'usuarios:estilista_agendar_cita' %}" class="btn btn-primary">Agendar Cita</a>
+        <a href="{% url 'usuarios:estilista_registrar_servicio' %}" class="btn btn-success">Registrar Servicio</a>
+    </div>
+</div>
+{% endblock %}

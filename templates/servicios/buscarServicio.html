@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar Servicios - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Servicios</h2>
+    </div>
+    <div class="card-body">
+        <form method="get" class="mb-4">
+            <div class="row align-items-end">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-semibold">Tipo de Búsqueda</label>
+                    <div class="mt-2">
+                        {% for choice in form.tipo_busqueda %}
+                        <div class="form-check">
+                            {{ choice.tag }}
+                            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                {{ choice.choice_label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.termino_busqueda.id_for_label }}" class="form-label fw-semibold">Término de Búsqueda</label>
+                    {{ form.termino_busqueda }}
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.precio_maximo.id_for_label }}" class="form-label fw-semibold">Precio Máximo</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        {{ form.precio_maximo }}
+                    </div>
+                </div>
+                
+                <div class="col-md-2 mb-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        {% if servicios %}
+            <div class="mt-4">
+                <h4 class="mb-3">Resultados de la Búsqueda ({{ servicios.count }})</h4>
+                
+                <div class="row">
+                    {% for servicio in servicios %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">{{ servicio.nombre }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary">{{ servicio.get_categoria_display }}</span>
+                                    <span class="badge bg-light text-dark ms-1">{{ servicio.duracion_minutos }} min</span>
+                                </div>
+                                
+                                {% if servicio.descripcion %}
+                                <p class="card-text text-muted small">{{ servicio.descripcion|truncatewords:15 }}</p>
+                                {% endif %}
+                                
+                                <div class="mb-3">
+                                    <h4 class="text-success mb-0">${{ servicio.precio_base|floatformat:0 }}</h4>
+                                    <small class="text-muted">Precio base</small>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge {% if servicio.estado == 'activo' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ servicio.estado|title }}
+                                    </span>
+                                    
+                                    <div class="btn-group">
+                                        <a href="{% url 'servicios:modificar_servicio' servicio.pk %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'servicios:calcular_servicio' %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-calculator"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif request.GET and not servicios %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-search fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No se encontraron resultados</h4>
+                <p class="text-muted">No hay servicios que coincidan con los criterios de búsqueda.</p>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Sugerencias:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Intente con términos de búsqueda más generales</li>
+                        <li>Verifique la categoría seleccionada</li>
+                        <li>Ajuste el precio máximo si es necesario</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Categorías de servicios -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Categorías de Servicios</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for categoria in form.fields.categoria.choices %}
+                {% if categoria.0 %}
+                <div class="col-md-3 mb-2">
+                    <div class="d-flex align-items-center p-2 border rounded">
+                        <span class="badge bg-secondary me-2">{{ categoria.1 }}</span>
+                        <small class="text-muted">
+                            ({{ servicios.filter|length }} servicios)
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+    
+    .input-group-text {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+    
+    .card {
+        transition: transform 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

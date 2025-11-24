@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Calcular Servicio - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="fas fa-calculator me-2"></i>Calcular Costo de Servicio</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.cliente.id_for_label }}" class="form-label fw-semibold">Cliente *</label>
+                            {{ form.cliente }}
+                            {% if form.cliente.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.cliente.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.servicio.id_for_label }}" class="form-label fw-semibold">Servicio *</label>
+                            {{ form.servicio }}
+                            {% if form.servicio.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.servicio.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.fecha_cita.id_for_label }}" class="form-label fw-semibold">Fecha de la Cita (opcional)</label>
+                            {{ form.fecha_cita }}
+                            {% if form.fecha_cita.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.fecha_cita.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.productos.id_for_label }}" class="form-label fw-semibold">Productos Adicionales</label>
+                        {{ form.productos }}
+                        {% if form.productos.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.productos.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Seleccione los productos que se consumirán durante el servicio</div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator me-2"></i>Calcular Costo
+                        </button>
+                        <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        {% if total > 0 %}
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="fas fa-receipt me-2"></i>Resumen del Costo</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-file-invoice-dollar fa-3x text-success"></i>
+                </div>
+                
+                <table class="table table-borderless">
+                    <tr>
+                        <th class="text-muted">Servicio Base:</th>
+                        <td class="text-end">${{ servicio_obj.precio_base|floatformat:0 }}</td>
+                    </tr>
+                    
+                    {% if es_cumpleanos %}
+                    <tr class="table-warning">
+                        <th class="text-muted">Descuento Cumpleaños (20%):</th>
+                        <td class="text-end text-danger">-${{ descuento|floatformat:0 }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if productos_objs %}
+                    <tr>
+                        <th class="text-muted">Productos Adicionales:</th>
+                        <td class="text-end">
+                            {% for producto in productos_objs %}
+                                +${{ producto.precio_venta|floatformat:0 }}<br>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    
+                    <tr class="border-top">
+                        <th class="fw-bold fs-5">TOTAL:</th>
+                        <td class="text-end fw-bold fs-5 text-success">${{ total|floatformat:0 }}</td>
+                    </tr>
+                </table>
+                
+                {% if es_cumpleanos %}
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-birthday-cake me-2"></i>
+                    <strong>¡Feliz Cumpleaños!</strong> Se ha aplicado un descuento del 20% por ser el cumpleaños del cliente.
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{% url 'servicios:registrar_servicio' %}" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Registrar Servicio
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Complete el formulario para calcular el costo total del servicio.</p>
+                <ul class="text-muted small">
+                    <li>Seleccione un cliente y servicio</li>
+                    <li>Agregue productos si es necesario</li>
+                    <li>Se aplicará descuento automático por cumpleaños</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .form-label {
+        color: #2c3e50;
+    }
+    
+    select[multiple] {
+        height: 150px;
+    }
+</style>
+{% endblock %}

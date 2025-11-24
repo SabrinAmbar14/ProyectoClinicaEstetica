@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Proveedor - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0"><i class="fas fa-truck me-2"></i>Información del Proveedor</h2>
+                <div>
+                    <a href="{% url 'proveedores:modificar_proveedor' proveedor.pk %}" class="btn btn-warning btn-sm me-2">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a href="{% url 'proveedores:lista_proveedores' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="40%">RUT:</th>
+                                <td class="fw-semibold">{{ proveedor.rut }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Empresa:</th>
+                                <td class="fw-semibold fs-5">{{ proveedor.nombre_empresa }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Contacto:</th>
+                                <td>{{ proveedor.nombre_contacto }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Email:</th>
+                                <td>
+                                    <a href="mailto:{{ proveedor.email }}" class="text-decoration-none">
+                                        {{ proveedor.email }}
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" width="40%">Teléfono:</th>
+                                <td>
+                                    <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none">
+                                        {{ proveedor.telefono }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Estado:</th>
+                                <td>
+                                    {% if proveedor.estado == 'activo' %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Productos:</th>
+                                <td>
+                                    <span class="badge bg-info">{{ proveedor.cantidad_productos }}</span>
+                                    productos asociados
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Registro:</th>
+                                <td>{{ proveedor.fecha_registro|date:"d/m/Y" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5 class="text-muted border-bottom pb-2">Dirección</h5>
+                    <p class="mb-0">{{ proveedor.direccion }}</p>
+                </div>
+                
+                <div class="mt-4">
+                    <h5 class="text-muted border-bottom pb-2">Productos que Suministra</h5>
+                    <p class="mb-0">{{ proveedor.productos_que_suministra }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos asociados -->
+        {% if productos_asociados %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Productos Asociados</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Stock Actual</th>
+                                <th>Precio Venta</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_asociados %}
+                            <tr>
+                                <td class="fw-semibold">{{ producto.nombre }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ producto.get_categoria_display }}</span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold {% if producto.esta_bajo_minimo %}text-danger{% endif %}">
+                                        {{ producto.stock_actual }}
+                                    </span>
+                                    {% if producto.esta_bajo_minimo %}
+                                        <i class="fas fa-exclamation-triangle text-danger ms-1"></i>
+                                    {% endif %}
+                                </td>
+                                <td>${{ producto.precio_venta|floatformat:0 }}</td>
+                                <td>
+                                    {% if producto.estado == 'activo' %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Resumen</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-truck fa-3x text-primary"></i>
+                </div>
+                <h4>{{ proveedor.nombre_empresa }}</h4>
+                <p class="text-muted">{{ proveedor.nombre_contacto }}</p>
+                
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Estado:</span>
+                        {% if proveedor.estado == 'activo' %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Productos:</span>
+                        <span class="fw-semibold">{{ proveedor.cantidad_productos }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Registro:</span>
+                        <span>{{ proveedor.fecha_registro|date:"M Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Acciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'proveedores:modificar_proveedor' proveedor.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Editar Proveedor
+                    </a>
+                    {% if proveedor.estado == 'activo' %}
+                        <form method="post" action="{% url 'proveedores:dar_baja_proveedor' proveedor.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100" 
+                                    onclick="return confirm('¿Está seguro de dar de baja este proveedor?')">
+                                <i class="fas fa-user-slash me-2"></i>Dar de Baja
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a href="{% url 'inventario:agregar_producto' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Agregar Producto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

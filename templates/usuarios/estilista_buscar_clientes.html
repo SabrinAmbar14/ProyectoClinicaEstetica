@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar Clientes (Estilista){% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Buscar Clientes</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" class="mb-3">
+            <input type="text" name="q" class="form-control" placeholder="Nombre, apellido o teléfono" value="{{ termino }}">
+        </form>
+        {% if clientes %}
+            <ul class="list-group">
+                {% for cliente in clientes %}
+                    <li class="list-group-item">
+                        <strong>{{ cliente.nombre_completo }}</strong> - {{ cliente.telefono }} - {{ cliente.email }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No se encontraron clientes.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

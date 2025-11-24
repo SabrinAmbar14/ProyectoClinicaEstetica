@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Recepcionista{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Dashboard Recepcionista</h3>
+    </div>
+    <div class="card-body">
+        <h5>Clientes nuevos (últimos 7 días)</h5>
+        {% if clientes_nuevos %}
+            <ul class="list-group mb-3">
+                {% for c in clientes_nuevos %}
+                    <li class="list-group-item">{{ c.get_full_name }} - {{ c.fecha_registro|date:"d/m/Y" }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay clientes nuevos recientemente.</p>
+        {% endif %}
+
+        <h5>Cumpleaños hoy</h5>
+        {% if cumpleaños_hoy %}
+            <ul class="list-group">
+                {% for c in cumpleaños_hoy %}
+                    <li class="list-group-item">{{ c.get_full_name }} - {{ c.telefono }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay cumpleaños hoy.</p>
+        {% endif %}
+
+        <hr>
+        <a href="{% url 'usuarios:recepcionista_gestion_clientes' %}" class="btn btn-primary">Gestionar Clientes</a>
+    </div>
+</div>
+{% endblock %}

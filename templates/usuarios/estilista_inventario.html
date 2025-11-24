@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario (Estilista){% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Inventario (solo lectura)</h3>
+    </div>
+    <div class="card-body">
+        {% if productos %}
+            <table class="table">
+                <thead><tr><th>Producto</th><th>Stock</th><th>Mínimo</th></tr></thead>
+                <tbody>
+                    {% for p in productos %}
+                        <tr>
+                            <td>{{ p.nombre }}</td>
+                            <td>{{ p.stock_actual }}</td>
+                            <td>{{ p.stock_minimo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay productos para mostrar.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

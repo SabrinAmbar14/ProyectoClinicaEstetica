@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Servicios - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-concierge-bell me-2"></i>Catálogo de Servicios</h2>
+        <div>
+            {% if is_admin %}
+            <a href="{% url 'servicios:agregar_servicio' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Agregar Servicio
+            </a>
+            {% endif %}
+            <a href="{% url 'servicios:calcular_servicio' %}" class="btn btn-success me-2">
+                <i class="fas fa-calculator"></i> Calcular Servicio
+            </a>
+            <a href="{% url 'servicios:buscar_servicio' %}" class="btn btn-info">
+                <i class="fas fa-search"></i> Buscar
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if servicios %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Precio Base</th>
+                            <th>Duración</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for servicio in servicios %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ servicio.nombre }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ servicio.get_categoria_display }}</span>
+                            </td>
+                            <td>
+                                {% if servicio.descripcion %}
+                                    <small class="text-muted">{{ servicio.descripcion|truncatewords:8 }}</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong class="text-success">${{ servicio.precio_base|floatformat:0 }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark">{{ servicio.duracion_minutos }} min</span>
+                            </td>
+                            <td>
+                                {% if servicio.estado == 'activo' %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    {% if is_admin %}
+                                    <a href="{% url 'servicios:modificar_servicio' servicio.pk %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if servicio.estado == 'activo' %}
+                                        <form method="post" action="{% url 'servicios:dar_baja_servicio' servicio.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm" 
+                                                    onclick="return confirm('¿Está seguro de dar de baja este servicio?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                        <form method="post" action="{% url 'servicios:eliminar_servicio' servicio.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="return confirm('¿Eliminar definitivamente este servicio? Esta acción no se puede deshacer.')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 text-muted">
+                <strong>Total de servicios:</strong> {{ servicios.count }}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-concierge-bell fa-3x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No hay servicios registrados</h4>
+                <p class="text-muted mb-4">Comience agregando el primer servicio al sistema.</p>
+                {% if is_admin %}
+                <a href="{% url 'servicios:agregar_servicio' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus"></i> Agregar Primer Servicio
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estadísticas de servicios -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ servicios.count }}</h4>
+                <p class="card-text">Total Servicios</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ servicios.filter|length }}</h4>
+                <p class="card-text">Servicios Activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ servicios.filter|length }}</h4>
+                <p class="card-text">Categorías</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 class="card-title">$0</h4>
+                <p class="card-text">Ingresos Totales</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

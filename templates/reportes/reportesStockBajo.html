@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte Stock Bajo Mínimo - Clínica Estética ERP{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Reporte de Stock Bajo Mínimo</h2>
+        <div>
+            {% if is_admin %}
+            <a href="{% url 'inventario:lista_productos' %}" class="btn btn-primary me-2">
+                <i class="fas fa-boxes"></i> Gestionar Inventario
+            </a>
+            {% else %}
+            <a href="{% url 'inventario:lista_productos' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-boxes"></i> Ver Inventario
+            </a>
+            {% endif %}
+            {% if is_admin or user_rol == 'recepcionista' or user_rol == 'estilista' %}
+            <a href="{% url 'reportes:exportar_inventario_csv' %}" class="btn btn-success me-2">
+                <i class="fas fa-file-csv"></i> Exportar CSV
+            </a>
+            <a href="{% url 'reportes:exportar_inventario_pdf' %}" class="btn btn-danger me-2">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </a>
+            {% endif %}
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if productos %}
+            <!-- Alerta crítica -->
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Alerta Crítica:</strong> Se detectaron {{ productos.count }} productos con stock bajo el mínimo establecido. 
+                Se requiere acción inmediata para reponer el inventario.
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-warning">
+                    <thead class="table-warning">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Diferencia</th>
+                            <th>Proveedor</th>
+                            <th>Prioridad</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ producto.nombre }}</div>
+                                {% if producto.descripcion %}
+                                    <small class="text-muted">{{ producto.descripcion|truncatewords:5 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ producto.get_categoria_display }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-danger fs-6">{{ producto.stock_actual }}</span>
+                            </td>
+                            <td>{{ producto.stock_minimo }}</td>
+                            <td>
+                                <span class="badge bg-danger">
+                                    {{ producto.diferencia_minima }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if producto.proveedor %}
+                                    <span class="badge bg-info">{{ producto.proveedor.nombre_empresa }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with diferencia=producto.diferencia_minima %}
+                                    {% if diferencia > 10 %}
+                                        <span class="badge bg-danger">Alta</span>
+                                    {% elif diferencia > 5 %}
+                                        <span class="badge bg-warning">Media</span>
+                                    {% else %}
+                                        <span class="badge bg-info">Baja</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    {% if is_admin %}
+                                    <a href="{% url 'inventario:actualizar_stock' producto.pk %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-boxes"></i> Reponer
+                                    </a>
+                                    <a href="{% url 'inventario:modificar_producto' producto.pk %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% else %}
+                                    <a href="#" class="btn btn-outline-secondary btn-sm" title="No tiene permiso">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Plan de acción -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>Plan de Acción Recomendado</h5>
+                        </div>
+                        <div class="card-body">
+                            <ol class="mb-0">
+                                <li>Contactar a los proveedores de los productos críticos</li>
+                                <li>Actualizar el stock lo antes posible</li>
+                                <li>Revisar niveles mínimos si es necesario ajustarlos</li>
+                                <li>Notificar al área de compras</li>
+                                <li>Seguimiento semanal del inventario</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Estadísticas del Reporte</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Total productos bajo mínimo:</span>
+                                <span class="fw-bold text-danger">{{ productos.count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Prioridad Alta:</span>
+                                <span class="fw-bold text-danger">{{ productos|length }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Prioridad Media:</span>
+                                <span class="fw-bold text-warning">{{ productos|length }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Prioridad Baja:</span>
+                                <span class="fw-bold text-info">{{ productos|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                </div>
+                <h4 class="text-success">¡Excelente!</h4>
+                <p class="text-muted">No hay productos bajo stock mínimo en este momento.</p>
+                <p class="text-muted mb-4">El inventario se encuentra en niveles adecuados.</p>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Mantenimiento preventivo:</strong> Se recomienda revisar periódicamente este reporte 
+                    para mantener un inventario óptimo.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Información del reporte -->
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información del Reporte</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Generado:</strong> {% now "d/m/Y H:i" %}</p>
+                <p class="mb-1"><strong>Productos monitoreados:</strong> {{ productos.count }}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Estado del inventario:</strong> 
+                    {% if productos.count > 0 %}
+                        <span class="text-danger">Requiere atención</span>
+                    {% else %}
+                        <span class="text-success">Óptimo</span>
+                    {% endif %}
+                </p>
+                <p class="mb-0"><strong>Última actualización:</strong> {% now "d/m/Y" %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
